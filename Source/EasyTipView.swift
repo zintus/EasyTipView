@@ -211,13 +211,13 @@ open class EasyTipView: UIView {
             public var cornerRadius        = CGFloat(5)
             public var arrowHeight         = CGFloat(5)
             public var arrowWidth          = CGFloat(10)
-            public var foregroundColor     = UIColor.white
             public var backgroundColor     = UIColor.red
             public var arrowPosition       = ArrowPosition.any
-            public var textAlignment       = NSTextAlignment.center
             public var borderWidth         = CGFloat(0)
             public var borderColor         = UIColor.clear
-            public var font                = UIFont.systemFont(ofSize: 15)
+
+            public var textAttributes: [NSAttributedString.Key: Any] = [:]
+
             public var shadowColor         = UIColor.clear
             public var shadowOffset        = CGSize(width: 0.0, height: 0.0)
             public var shadowRadius        = CGFloat(0)
@@ -307,11 +307,7 @@ open class EasyTipView: UIView {
         
         switch content {
         case .text(let text):
-            #if swift(>=4.2)
-            var attributes = [NSAttributedString.Key.font : self.preferences.drawing.font]
-            #else
-            var attributes = [NSAttributedStringKey.font : self.preferences.drawing.font]
-            #endif
+            let attributes = self.preferences.drawing.textAttributes
             
             var textSize = text.boundingRect(with: CGSize(width: self.preferences.positioning.maxWidth, height: CGFloat.greatestFiniteMagnitude), options: NSStringDrawingOptions.usesLineFragmentOrigin, attributes: attributes, context: nil).size
             
@@ -603,20 +599,9 @@ open class EasyTipView: UIView {
     
     fileprivate func drawText(_ bubbleFrame: CGRect, context : CGContext) {
         guard case .text(let text) = content else { return }
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.alignment = preferences.drawing.textAlignment
-        paragraphStyle.lineBreakMode = NSLineBreakMode.byWordWrapping
-        
         
         let textRect = getContentRect(from: bubbleFrame)
-        
-        #if swift(>=4.2)
-        let attributes = [NSAttributedString.Key.font : preferences.drawing.font, NSAttributedString.Key.foregroundColor : preferences.drawing.foregroundColor, NSAttributedString.Key.paragraphStyle : paragraphStyle]
-        #else
-        let attributes = [NSAttributedStringKey.font : preferences.drawing.font, NSAttributedStringKey.foregroundColor : preferences.drawing.foregroundColor, NSAttributedStringKey.paragraphStyle : paragraphStyle]
-        #endif
-        
-        text.draw(in: textRect, withAttributes: attributes)
+        text.draw(in: textRect, withAttributes: preferences.drawing.textAttributes)
     }
     
     fileprivate func drawShadow() {
